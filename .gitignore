@@ -1,0 +1,20 @@
+# macOS
+.DS_Store
+
+# Xcode user-specific state
+**/xcuserdata/
+**/*.xcuserstate
+**/*.xcscmblueprint
+
+# Build outputs
+DerivedData/
+
+# Local environment and secrets
+.env
+.env.*
+
+# Firebase config (keep local only)
+**/GoogleService-Info.plist
+
+# Local Cloudinary config (keep local only)
+Pulse/Pulse/Config/Cloudinary.local.xcconfig

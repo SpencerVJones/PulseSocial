@@ -1,0 +1,5 @@
+// Checked-in defaults. Local secrets should live in Cloudinary.local.xcconfig.
+CLOUDINARY_CLOUD_NAME =
+CLOUDINARY_UPLOAD_PRESET =
+
+#include? "Cloudinary.local.xcconfig"

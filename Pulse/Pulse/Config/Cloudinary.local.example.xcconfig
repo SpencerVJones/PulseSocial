@@ -1,0 +1,4 @@
+// Copy this file to Cloudinary.local.xcconfig (ignored by git)
+// and set your Cloudinary values.
+CLOUDINARY_CLOUD_NAME = your-cloud-name
+CLOUDINARY_UPLOAD_PRESET = your-upload-preset

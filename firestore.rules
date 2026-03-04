@@ -1,0 +1,99 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isCurrentUser(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    function chatExists(chatId) {
+      return exists(/databases/$(database)/documents/chats/$(chatId));
+    }
+
+    function isChatMember(chatId) {
+      return signedIn()
+        && chatExists(chatId)
+        && get(/databases/$(database)/documents/chats/$(chatId)).data.memberIds.hasAny([request.auth.uid]);
+    }
+
+    function membershipExists(chatId, uid) {
+      return exists(/databases/$(database)/documents/chats/$(chatId)/members/$(uid));
+    }
+
+    function isActiveMember(chatId, uid) {
+      return membershipExists(chatId, uid)
+        && get(/databases/$(database)/documents/chats/$(chatId)/members/$(uid)).data.state == "active";
+    }
+
+    function isAdminMember(chatId, uid) {
+      return isActiveMember(chatId, uid)
+        && get(/databases/$(database)/documents/chats/$(chatId)/members/$(uid)).data.role == "admin";
+    }
+
+    match /chats/{chatId} {
+      allow read: if isChatMember(chatId);
+      allow create: if signedIn()
+        && request.resource.data.createdBy == request.auth.uid
+        && request.resource.data.memberIds is list
+        && request.resource.data.memberIds.hasAny([request.auth.uid]);
+      allow update: if isActiveMember(chatId, request.auth.uid);
+      allow delete: if false;
+
+      match /members/{memberId} {
+        allow read: if isChatMember(chatId);
+        allow create: if signedIn()
+          && (
+            memberId == request.auth.uid
+            || request.resource.data.requestedBy == request.auth.uid
+            || isAdminMember(chatId, request.auth.uid)
+          );
+        allow update: if signedIn()
+          && (
+            memberId == request.auth.uid
+            || isAdminMember(chatId, request.auth.uid)
+          );
+        allow delete: if false;
+      }
+
+      match /messages/{messageId} {
+        allow read: if isChatMember(chatId);
+        allow create: if isActiveMember(chatId, request.auth.uid)
+          && request.resource.data.senderId == request.auth.uid;
+        allow update, delete: if false;
+      }
+
+      match /invites/{inviteId} {
+        allow read: if isChatMember(chatId);
+        allow create: if isAdminMember(chatId, request.auth.uid)
+          && request.resource.data.fromUid == request.auth.uid;
+        allow update: if isAdminMember(chatId, request.auth.uid);
+        allow delete: if false;
+      }
+    }
+
+    match /userChats/{uid} {
+      allow read, write: if isCurrentUser(uid);
+
+      match /chats/{chatId} {
+        allow read, write: if isCurrentUser(uid);
+      }
+    }
+
+    match /blocks/{uid} {
+      allow read, write: if isCurrentUser(uid);
+
+      match /blocked/{blockedUid} {
+        allow read, write: if isCurrentUser(uid);
+      }
+    }
+
+    // Temporary authenticated fallback for the rest of the app's collections.
+    // Tighten this after migrating the non-chat collections into explicit rules.
+    match /{document=**} {
+      allow read, write: if signedIn();
+    }
+  }
+}
