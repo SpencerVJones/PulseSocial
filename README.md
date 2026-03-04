@@ -54,7 +54,6 @@
   - [How to Run](#how-to-run)
 - [Usage](#usage)
 - [Roadmap](#roadmap)
-- [Contributors](#contributors)
 - [License](#license)
 - [Contact](#contact)
 
@@ -167,11 +166,6 @@ xcodebuild -project Pulse/Pulse.xcodeproj -scheme Pulse -configuration Debug -de
 - [ ] Expanded contract + emulator-backed integration tests
 
 See open issues for a full list of proposed features (and known issues).
-
-## Contributors
-<a href="https://github.com/SpencerVJones/PulseSocial/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=SpencerVJones/PulseSocial"/>
-</a>
 
 ## License
 Copyright (c) 2026 Spencer Jones
