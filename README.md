@@ -196,9 +196,6 @@ Or run from Xcode with `Cmd+U`.
 4. Push branch
 5. Open a pull request
 
-## License
-
-MIT. See `LICENSE`.
 
 ## Contact
 
